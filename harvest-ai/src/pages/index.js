@@ -11,24 +11,33 @@ import Button from '@components/Button'
 
 import styles from '@styles/Home.module.scss'
 import { searchProperties } from 'src/util/api'
+import PropertyTable from '@components/PropertyTable'
+import { EXAMPLE_QUERIES } from 'src/util/constants'
 
 const DEFAULT_CENTER = [38.907132, -77.036546]
 
 export default function Home() {
   const [properties, setProperties] = useState([])
+  const [accessCode, setAccessCode] = useState('')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function search() {
-    if (!query) return
+    if (!query || !accessCode) {
+      alert('Query and access code are required')
+      return
+    }
 
     setLoading(true)
 
     try {
-      const result = await searchProperties({ query, access_code: 'BANANA1' })
+      const result = await searchProperties({ query, access_code: accessCode })
       setProperties(result)
     } catch (error) {
       console.error(error)
+      if (error.response) {
+        alert(error.response.data.error)
+      }
     } finally {
       setLoading(false)
     }
@@ -50,7 +59,10 @@ export default function Home() {
               {/* Sidebar */}
               <div className="bg-white p-4 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold mb-2">Search anywhere</h2>
-                <p className="text-gray-600">This is a sidebar</p>
+                <p className="text-gray-600">
+                  We'll predict property values for active properties in your
+                  desired area
+                </p>
 
                 {/* Input query */}
                 <div className="flex-wrap -mx-2 overflow-hidden my-4">
@@ -59,6 +71,14 @@ export default function Home() {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  />
+                  {/* passcode */}
+                  <h3 className="mt-2">Access Code:</h3>
+                  <input
+                    type="text"
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   />
 
@@ -75,11 +95,16 @@ export default function Home() {
                 <hr />
                 <div className="flex-wrap -mx-2 overflow-hidden my-4">
                   <h3>Examples:</h3>
-                  <pre>
-                    Plymouth, MA
-                    <br />
-                    Middlesex County, MA
-                  </pre>
+                  {EXAMPLE_QUERIES.map((example) => (
+                    <Button
+                      type="link"
+                      key={example}
+                      className="mt-2 mr-2"
+                      onClick={() => setQuery(example)}
+                    >
+                      {example}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -105,6 +130,9 @@ export default function Home() {
                   </>
                 )}
               </Map>
+              <hr />
+
+              <PropertyTable properties={properties} />
             </div>
           </div>
           {/* Tailwind grid with sidebar */}
