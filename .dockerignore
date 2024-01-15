@@ -1,0 +1,47 @@
+# flyctl launch added from .gitignore
+**/data/*.csv
+**/__pycache__
+**/.env
+
+# flyctl launch added from harvest-ai/.gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+harvest-ai/node_modules
+harvest-ai/.pnp
+harvest-ai/**/.pnp.js
+
+# env
+harvest-ai/**/.env
+
+# testing
+harvest-ai/coverage
+
+# next.js
+harvest-ai/.next
+harvest-ai/out
+
+# production
+harvest-ai/build
+
+# misc
+harvest-ai/**/.DS_Store
+harvest-ai/**/*.pem
+
+# debug
+harvest-ai/**/npm-debug.log*
+harvest-ai/**/yarn-debug.log*
+harvest-ai/**/yarn-error.log*
+
+# local env files
+harvest-ai/**/.env.local
+harvest-ai/**/.env.development.local
+harvest-ai/**/.env.test.local
+harvest-ai/**/.env.production.local
+
+# vercel
+harvest-ai/**/.vercel
+
+# flyctl launch added from harvest-ai/node_modules/tailwindcss/stubs/.gitignore
+!harvest-ai/node_modules/tailwindcss/stubs/**/*
+fly.toml

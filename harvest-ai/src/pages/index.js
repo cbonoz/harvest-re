@@ -20,18 +20,6 @@ import { gradientColor } from 'src/util'
 const DEFAULT_CENTER = [38.907132, -77.036546]
 const ZOOM = 12
 
-const getIconUrl = (position, num_markers) => {
-  // Get a color based on the position index relative to the number of markers between green -> orange -> red for last in RGB format
-  const color = gradientColor(position, num_markers)
-
-  const LeafIcon = L.Icon.extend({
-    options: {},
-  })
-  return new LeafIcon({
-    iconUrl: `https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|${color}&chf=a,s,eee`,
-  })
-}
-
 export default function Home() {
   const [map, setMap] = useState(null)
 
@@ -39,6 +27,18 @@ export default function Home() {
   const [accessCode, setAccessCode] = useState('')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const getIconUrl = (position, num_markers) => {
+    // Get a color based on the position index relative to the number of markers between green -> orange -> red for last in RGB format
+    const color = gradientColor(position, num_markers)
+    const leaf = window?.L || L
+    const LeafIcon = leaf.Icon.extend({
+      options: {},
+    })
+    return new LeafIcon({
+      iconUrl: `https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|${color}&chf=a,s,eee`,
+    })
+  }
 
   const setMapRef = (map) => {
     // log
@@ -51,9 +51,10 @@ export default function Home() {
       return
     }
     const latLngs = ps.map((p) => [p.latitude, p.longitude])
+    const leaf = window?.L || L
     const bounds = latLngs.reduce(
       (bounds, latLng) => bounds.extend(latLng),
-      new window.L.LatLngBounds(latLngs[0], latLngs[0])
+      new leaf.LatLngBounds(latLngs[0], latLngs[0])
     )
     console.log('bounds', bounds, latLngs.length, latLngs[0])
     map.fitBounds(bounds)
