@@ -48,6 +48,9 @@ class BasicSearchPayload(BaseModel):
 # base router with path /api
 router = APIRouter(prefix='/api')
 
+@router.get("")
+async def index():
+    return JSONResponse(content={'message': 'Welcome to HarvestAI API!'}, status_code=200)
 
 # search endpoint
 @router.post("/predict")

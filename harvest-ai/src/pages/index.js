@@ -9,7 +9,6 @@ import Section from '@components/Section'
 import Container from '@components/Container'
 import Map from '@components/Map'
 import Button from '@components/Button'
-import * as L from 'leaflet'
 
 import styles from '@styles/Home.module.scss'
 import { searchProperties } from 'src/util/api'
