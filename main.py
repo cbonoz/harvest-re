@@ -2,11 +2,15 @@
 
 
 # Import libraries
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from pydantic import BaseModel
 from typing import Optional
 import json
+import os
 
 # Import RedfinModel from redfin_harvest.ipynb
 from model_lib import RedfinModel
@@ -14,23 +18,55 @@ from model_lib import RedfinModel
 # Create FastAPI server
 app = FastAPI()
 
-class BasicSearchPayload(BaseModel):
-    query: str
+from dotenv import load_dotenv
 
-# search endpoint
-@app.post("/predict")
-async def predict(payload: BasicSearchPayload):
-    query = payload.query
-    # Run the model
-    redfin = RedfinModel(query, {
+load_dotenv()
+
+DEFAULT_FILTERS = {
       'style': ['SINGLE_FAMILY', 'TOWNHOUSE'],
       'beds': [3, 4, 5]
-    })
+    }
+
+ACCESS_CODE = os.getenv('ACCESS_CODE')
+APP_ENV = os.getenv('APP_ENV')
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class BasicSearchPayload(BaseModel):
+    query: str
+    filters: Optional[dict] = None
+    access_code: Optional[str] = None
+
+# base router with path /api
+router = APIRouter(prefix='/api')
+
+
+# search endpoint
+@router.post("/predict")
+async def predict(payload: BasicSearchPayload):
+    if APP_ENV == 'prod' and payload.access_code != ACCESS_CODE:
+        return JSONResponse(content={'error': 'Invalid access code'}, status_code=401)
+
+    query = payload.query
+    filters = payload.filters
+    if not filters:
+        filters = DEFAULT_FILTERS
+    # Run the model
+    redfin = RedfinModel(query, filters)
     train_df = redfin.fetch_data('sold')
     redfin.train_from_raw(train_df, train_df[RedfinModel.TARGET_COLUMN])
     test_df = redfin.fetch_data('for_sale')
-# test_df = redfin.filter_data(test_df)
+    # test_df = redfin.filter_data(test_df)
     result_df = redfin.predict(test_df)[RedfinModel.OUTPUT_COLUMNS]
     return JSONResponse(content=json.loads(result_df.to_json(orient='records')), status_code=200)
 
 
+app.include_router(router)

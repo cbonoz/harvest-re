@@ -1,58 +1,33 @@
-# Next Entree
+# 🍃 HarvestAI
 
-Next.js 14+ starter template with app router, shadcn/ui, typesafe env, icons and configs setup.
+Jumpstart your new Next.js mapping project with Leaflet!
 
-## Usage
+## ⚡ Quick Deploy
+[![Deploy with Vercel Now](https://zeit.co/button)](https://vercel.com/import/project?template=https://github.com/colbyfayock/next-leaflet-starter) [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/colbyfayock/next-leaflet-starter)
 
-1. Setup a project using the template
 
-```bash
-pnpm create next-app -e https://github.com/redpangilinan/next-entree
+## 🧰 What This Includes
+* [Next.js](https://nextjs.org/)
+* [Leaflet](https://leafletjs.com/)
+* [React Leaflet](https://react-leaflet.js.org)
+
+## 🚀 Getting Started
+
+### Requirements
+
+### Quick Start
+
+```
+npx create-next-app -e https://github.com/colbyfayock/next-leaflet-starter
 ```
 
-```bash
-npx create-next-app -e https://github.com/redpangilinan/next-entree
-```
+### Running the Project
+First, run the development server:
 
 ```bash
-yarn create next-app -e https://github.com/redpangilinan/next-entree
+npm run dev
 ```
 
-```bash
-bunx create-next-app -e https://github.com/redpangilinan/next-entree
-```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-2. Copy `.env.example` to `.env.local`
-
-```bash
-cp .env.example .env.local
-```
-
-## Features
-
-This template uses [shadcn](https://github.com/shadcn)'s Next.js app structure from [shadcn/ui](https://ui.shadcn.com/).
-
-- Next.js 14+ `/app` router
-- TypeScript
-- Tailwind CSS
-- shadcn/ui (Radix UI + Tailwind)
-- Prettier (w/ auto sort imports and tailwind classes)
-- SEO optimized
-- Typesafe env, icons, and config
-- Ready to use - jump right into development
-
-## Scripts
-
-If you are using a different package manager, be sure to update the package.json format scripts.
-
-1. Check project formatting
-
-```bash
-pnpm format:check
-```
-
-2. Format the project
-
-```bash
-pnpm format
-```
+You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
