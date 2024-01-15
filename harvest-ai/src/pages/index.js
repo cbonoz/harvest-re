@@ -2,19 +2,35 @@
 
 import Head from 'next/head'
 import { useState } from 'react'
+import Image from 'next/image'
 
 import Layout from '@components/Layout'
 import Section from '@components/Section'
 import Container from '@components/Container'
 import Map from '@components/Map'
 import Button from '@components/Button'
+import * as L from 'leaflet'
 
 import styles from '@styles/Home.module.scss'
 import { searchProperties } from 'src/util/api'
 import PropertyTable from '@components/PropertyTable'
 import { EXAMPLE_QUERIES } from 'src/util/constants'
+import { gradientColor } from 'src/util'
 
 const DEFAULT_CENTER = [38.907132, -77.036546]
+const ZOOM = 12
+
+const getIconUrl = (position, num_markers) => {
+  // Get a color based on the position index relative to the number of markers between green -> orange -> red for last in RGB format
+  const color = gradientColor(position, num_markers)
+
+  const LeafIcon = L.Icon.extend({
+    options: {},
+  })
+  return new LeafIcon({
+    iconUrl: `https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|${color}&chf=a,s,eee`,
+  })
+}
 
 export default function Home() {
   const [map, setMap] = useState(null)
@@ -41,7 +57,12 @@ export default function Home() {
     )
     console.log('bounds', bounds, latLngs.length, latLngs[0])
     map.fitBounds(bounds)
-    map.flyTo(latLngs[0], 12)
+    map.flyTo(latLngs[0], ZOOM)
+  }
+
+  const goToProperty = (property) => {
+    const latLng = [property.latitude, property.longitude]
+    map.flyTo(latLng, ZOOM + 5)
   }
 
   async function search() {
@@ -137,7 +158,7 @@ export default function Home() {
                 width="800"
                 height="400"
                 center={DEFAULT_CENTER}
-                zoom={12}
+                zoom={ZOOM}
                 // ref={setMapRef}
                 // whenCreated={setMapRef}
                 whenReady={setMapRef}
@@ -156,8 +177,33 @@ export default function Home() {
                         <Marker
                           key={i}
                           position={[property.latitude, property.longitude]}
+                          icon={getIconUrl(i, properties.length)}
+                          width={200}
                         >
-                          <Popup>{property['Readable Address']}</Popup>
+                          <Popup>
+                            <a
+                              href={property.Url}
+                              target="_blank"
+                              className="cursor-pointer"
+                            >
+                              <Image
+                                src={property.Photo}
+                                width={200}
+                                height={64}
+                              />
+                            </a>
+                            <br />
+                            <b>{property['Readable Address']}</b>
+                            <br />
+                            <b>
+                              List Price: {property['List Price ($)']}
+                              <br />
+                              <hr />
+                              <br />
+                              Predicted: {property['Predicted Price ($)']} (
+                              {property['% Difference']})
+                            </b>
+                          </Popup>
                         </Marker>
                       )
                     })}
@@ -172,7 +218,7 @@ export default function Home() {
               </Map>
               <hr />
 
-              <PropertyTable properties={properties} />
+              <PropertyTable onClick={goToProperty} properties={properties} />
             </div>
           </div>
           {/* Tailwind grid with sidebar */}

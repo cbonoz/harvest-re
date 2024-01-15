@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 
 const HIDDEN_PROPERTIES = new Set(['Url', 'Photo', 'latitude', 'longitude'])
 // }
-const PropertyTable = ({ properties }) => {
+const PropertyTable = ({ properties, onClick }) => {
   if (!properties || properties.length === 0) {
     return <h3>No active properties selected</h3>
   }
@@ -48,7 +48,7 @@ const PropertyTable = ({ properties }) => {
               onClick={() => {
                 const url = property.Url
                 console.log('property', url)
-                window.open(url, '_blank')
+                onClick(property)
               }}
             >
               {targetKeys.map((key) => (
