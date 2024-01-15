@@ -10,3 +10,11 @@ export const convertSnakeToCamelInObject = (obj) => {
     return acc
   }, {})
 }
+
+export const formatMoney = (value) => {
+  if (typeof value !== 'number') return value
+  return Number(value).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  })
+}

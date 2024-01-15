@@ -66,6 +66,8 @@ async def predict(payload: BasicSearchPayload):
     test_df = redfin.fetch_data('for_sale')
     # test_df = redfin.filter_data(test_df)
     result_df = redfin.predict(test_df)[RedfinModel.OUTPUT_COLUMNS]
+    # sort by 'diff_percent'
+    result_df = result_df.sort_values(by=['diff_percent'], ascending=False)
     return JSONResponse(content=json.loads(result_df.to_json(orient='records')), status_code=200)
 
 

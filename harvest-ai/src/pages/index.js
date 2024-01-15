@@ -17,10 +17,32 @@ import { EXAMPLE_QUERIES } from 'src/util/constants'
 const DEFAULT_CENTER = [38.907132, -77.036546]
 
 export default function Home() {
+  const [map, setMap] = useState(null)
+
   const [properties, setProperties] = useState([])
   const [accessCode, setAccessCode] = useState('')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const setMapRef = (map) => {
+    // log
+    console.log('map', map)
+    setMap(map.target)
+  }
+
+  const updateMarkersAndCenterMap = (ps) => {
+    if (!ps || !ps.length) {
+      return
+    }
+    const latLngs = ps.map((p) => [p.latitude, p.longitude])
+    const bounds = latLngs.reduce(
+      (bounds, latLng) => bounds.extend(latLng),
+      new window.L.LatLngBounds(latLngs[0], latLngs[0])
+    )
+    console.log('bounds', bounds, latLngs.length, latLngs[0])
+    map.fitBounds(bounds)
+    map.flyTo(latLngs[0], 12)
+  }
 
   async function search() {
     if (!query || !accessCode) {
@@ -33,6 +55,7 @@ export default function Home() {
     try {
       const result = await searchProperties({ query, access_code: accessCode })
       setProperties(result)
+      updateMarkersAndCenterMap(result)
     } catch (error) {
       console.error(error)
       if (error.response) {
@@ -115,6 +138,9 @@ export default function Home() {
                 height="400"
                 center={DEFAULT_CENTER}
                 zoom={12}
+                // ref={setMapRef}
+                // whenCreated={setMapRef}
+                whenReady={setMapRef}
               >
                 {({ TileLayer, Marker, Popup }) => (
                   <>
@@ -122,11 +148,25 @@ export default function Home() {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <Marker position={DEFAULT_CENTER}>
+                    {properties.map((property, i) => {
+                      if (!property.latitude || !property.longitude) {
+                        return null
+                      }
+                      return (
+                        <Marker
+                          key={i}
+                          position={[property.latitude, property.longitude]}
+                        >
+                          <Popup>{property['Readable Address']}</Popup>
+                        </Marker>
+                      )
+                    })}
+
+                    {/* <Marker position={DEFAULT_CENTER}>
                       <Popup>
                         A pretty CSS3 popup. <br /> Easily customizable.
                       </Popup>
-                    </Marker>
+                    </Marker> */}
                   </>
                 )}
               </Map>
