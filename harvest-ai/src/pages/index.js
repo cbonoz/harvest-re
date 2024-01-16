@@ -84,8 +84,11 @@ export default function Home() {
   return (
     <Layout>
       <Head>
-        <title>HarvestAI</title>
-        <meta name="description" content="Create mapping apps with HarvestAI" />
+        <title>Harvest Real Estate</title>
+        <meta
+          name="description"
+          content="Create mapping apps with Harvest Real Estate"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -114,7 +117,7 @@ export default function Home() {
                   {/* passcode */}
                   <h3 className="mt-2">Access Code:</h3>
                   <input
-                    type="text"
+                    type="password"
                     value={accessCode}
                     onChange={(e) => setAccessCode(e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
@@ -128,6 +131,7 @@ export default function Home() {
                   >
                     Search
                   </Button>
+                  <br />
                   {loading && (
                     <div role="status">
                       <svg

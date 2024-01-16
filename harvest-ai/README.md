@@ -1,4 +1,4 @@
-# 🍃 HarvestAI
+# 🍃 Harvest Real Estate
 
 Jumpstart your new Next.js mapping project with Leaflet!
 

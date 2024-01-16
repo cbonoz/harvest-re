@@ -50,7 +50,7 @@ router = APIRouter(prefix='/api')
 
 @router.get("")
 async def index():
-    return JSONResponse(content={'message': 'Welcome to HarvestAI API!'}, status_code=200)
+    return JSONResponse(content={'message': 'Welcome to the Harvest Real Estate API!'}, status_code=200)
 
 # search endpoint
 @router.post("/predict")

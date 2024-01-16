@@ -1,17 +1,18 @@
-import Container from '@components/Container';
+import Container from '@components/Container'
 
-import styles from './Footer.module.scss';
+import styles from './Footer.module.scss'
 
 const Footer = ({ ...rest }) => {
   return (
     <footer className={styles.footer} {...rest}>
       <Container className={`${styles.footerContainer} ${styles.footerLegal}`}>
         <p>
-          &copy; <a href="https://spacejelly.dev">HarvestAI</a>, {new Date().getFullYear()}
+          &copy; <a href="https://spacejelly.dev">Harvest Real Estate</a>,{' '}
+          {new Date().getFullYear()}
         </p>
       </Container>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
