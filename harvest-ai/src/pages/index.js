@@ -132,6 +132,7 @@ export default function Home() {
                     Search
                   </Button>
                   <br />
+                  <br />
                   {loading && (
                     <div role="status">
                       <svg
