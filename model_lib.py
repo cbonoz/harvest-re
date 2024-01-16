@@ -9,7 +9,6 @@ from sklearn.ensemble import GradientBoostingRegressor
 
 ACTIVE_MODEL = GradientBoostingRegressor
 DATA_FOLDER = 'data'
-TARGET_LOCATION = 'Andover, MA'
 DAYS_OF_SOLD_HISTORY = 180
 MIN_PRICE = 500000
 MAX_PRICE = 15000000
@@ -21,7 +20,7 @@ class RedfinModel:
     COLUMNS_TO_REMOVE = ['zip_code', 'last_sold_date', 'mls_id', 'list_price', 'latitude', 'longitude', 'days_on_mls', 'price_per_sqft', TARGET_COLUMN]
     OUTPUT_COLUMNS = ['readable_address','style', 'beds', 'full_baths', 'list_price', 'predicted', 'diff', 'diff_percent',  'latitude', 'longitude', 'primary_photo', 'property_url']
 
-    def __init__(self, location=TARGET_LOCATION, column_filters={}):
+    def __init__(self, location, column_filters={}):
         self.model = None
         self.model_type = ACTIVE_MODEL
         self.data_folder = DATA_FOLDER
