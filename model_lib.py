@@ -103,7 +103,7 @@ class RedfinModel:
 
 
         print(f"Filtered data shape: {data.shape} (from {original_shape})")
-        return data
+        return data.convert_dtypes()
 
     def process_data(self, data, show_debug=False):
         numeric_cols = data.select_dtypes(include=np.number).columns.values
