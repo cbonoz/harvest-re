@@ -27,7 +27,7 @@ DEFAULT_FILTERS = {
       'beds': [3, 4, 5]
     }
 
-ACCESS_CODE = os.getenv('ACCESS_CODE')
+ACCESS_CODE = os.getenv('HARVEST_ACCESS_CODE')
 APP_ENV = os.getenv('APP_ENV')
 
 origins = ["*"]
