@@ -66,7 +66,7 @@ async def predict(payload: BasicSearchPayload):
     redfin = RedfinModel(query, filters)
     train_df = redfin.fetch_data('sold')
     if train_df.shape[0] == 0:
-        return JSONResponse(content={'message': f"No results for {query}, try another county, city, or town"}, status_code=400)
+        return JSONResponse(content={'message': f"No results for {query} - please try another county, city, or town"}, status_code=400)
     redfin.train_from_raw(train_df, train_df[RedfinModel.TARGET_COLUMN])
     test_df = redfin.fetch_data('for_sale')
     # test_df = redfin.filter_data(test_df)
