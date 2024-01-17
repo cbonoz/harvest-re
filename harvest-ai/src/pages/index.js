@@ -26,6 +26,7 @@ export default function Home() {
   const [accessCode, setAccessCode] = useState('')
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const getIconUrl = (position, num_markers) => {
     // Get a color based on the position index relative to the number of markers between green -> orange -> red for last in RGB format
@@ -60,8 +61,9 @@ export default function Home() {
   }
 
   async function search() {
+    setError(null)
     if (!query || !accessCode) {
-      alert('Query and access code are required')
+      setError('Query and access code are required')
       return
     }
 
@@ -73,13 +75,12 @@ export default function Home() {
       updateMarkersAndCenterMap(result)
     } catch (error) {
       console.error(error)
-      if (error.response) {
-        const errorMessage =
-          error.response.message ||
-          error.response.error ||
-          'Unable to find properties, please try another query or try again later'
-        alert(errorMessage)
-      }
+      const errorData = error.response.data || error
+      const errorMessage =
+        errorData?.message ||
+        errorData?.error ||
+        'Unable to find properties, please try another query or try again later'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -158,6 +159,11 @@ export default function Home() {
                       <span class="sr-only">Loading...</span>
                     </div>
                   )}
+                  <div>
+                    {error && (
+                      <div className="text-red-500 text-med">{error}</div>
+                    )}
+                  </div>
                 </div>
 
                 <hr />
