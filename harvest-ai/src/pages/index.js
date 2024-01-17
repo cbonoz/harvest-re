@@ -74,8 +74,11 @@ export default function Home() {
     } catch (error) {
       console.error(error)
       if (error.response) {
-        const { data } = error.response
-        alert(data.message || data.error)
+        const errorMessage =
+          error.response.message ||
+          error.response.error ||
+          'Unable to find properties, please try another query or try again later'
+        alert(errorMessage)
       }
     } finally {
       setLoading(false)
