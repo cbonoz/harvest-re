@@ -74,7 +74,8 @@ export default function Home() {
     } catch (error) {
       console.error(error)
       if (error.response) {
-        alert(error.response.data.error)
+        const { data } = error.response
+        alert(data.message || data.error)
       }
     } finally {
       setLoading(false)

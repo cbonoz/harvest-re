@@ -17,7 +17,7 @@ class RedfinModel:
 
     TARGET_COLUMN = 'sold_price'
     COLUMNS_TO_ONE_HOT_ENCODE = ['state', 'style', 'city']
-    COLUMNS_TO_REMOVE = ['zip_code', 'last_sold_date', 'mls_id', 'list_price', 'latitude', 'longitude', 'days_on_mls', 'price_per_sqft', TARGET_COLUMN]
+    COLUMNS_TO_REMOVE = ['zip_code', 'last_sold_date', 'mls_id', 'list_price', 'latitude', 'longitude', 'price_per_sqft', TARGET_COLUMN]
     OUTPUT_COLUMNS = ['readable_address','style', 'beds', 'full_baths', 'list_price', 'predicted', 'diff', 'diff_percent',  'latitude', 'longitude', 'primary_photo', 'property_url']
 
     def __init__(self, location, column_filters={}):

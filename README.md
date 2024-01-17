@@ -24,6 +24,8 @@ The app should now be running on port 3000.
 Deployment
 https://ahmadrosid.com/blog/deploy-fastapi-flyio
 
+`fly deploy`
+
 
 ### Example screenshot
 

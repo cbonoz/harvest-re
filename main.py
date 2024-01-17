@@ -56,7 +56,7 @@ async def index():
 @router.post("/predict")
 async def predict(payload: BasicSearchPayload):
     if APP_ENV == 'prod' and payload.access_code != ACCESS_CODE:
-        return JSONResponse(content={'error': 'Invalid access code'}, status_code=401)
+        return JSONResponse(content={'message': 'Invalid access code'}, status_code=401)
 
     query = payload.query
     filters = payload.filters
@@ -65,6 +65,8 @@ async def predict(payload: BasicSearchPayload):
     # Run the model
     redfin = RedfinModel(query, filters)
     train_df = redfin.fetch_data('sold')
+    if train_df.shape[0] == 0:
+        return JSONResponse(content={'message': f"No results for {query}, try another county, city, or town"}, status_code=400)
     redfin.train_from_raw(train_df, train_df[RedfinModel.TARGET_COLUMN])
     test_df = redfin.fetch_data('for_sale')
     # test_df = redfin.filter_data(test_df)
