@@ -14,25 +14,26 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 
-# ACTIVE_MODEL = GradientBoostingRegressor
-ACTIVE_MODEL = Pipeline(steps=[
-    ('preprocessor', ColumnTransformer(
-        transformers=[
-            # ('text', TfidfVectorizer(), 'text'),
-            ('num', StandardScaler(), ['beds', 'full_baths', 'sqft']),
-        ])),
-    ('regressor', RandomForestRegressor())
-])
+ACTIVE_MODEL = RandomForestRegressor()
+# ACTIVE_MODEL = Pipeline(steps=[
+#     ('preprocessor', ColumnTransformer(
+#         transformers=[
+#             # ('text', TfidfVectorizer(), 'text'),
+#             ('num', StandardScaler(), ['sqft', 'beds', 'full_baths']),
+#         ])),
+#     ('regressor', LinearRegression())
+# ])
+
 DATA_FOLDER = 'data'
 DAYS_OF_SOLD_HISTORY = 180
 MIN_PRICE = 500000
-MAX_PRICE = 1_250_000
+MAX_PRICE = 1_300_000
 
 class RedfinModel:
 
     TARGET_COLUMN = 'sold_price'
-    COLUMNS_TO_ONE_HOT_ENCODE = ['state', 'style', 'city']
-    COLUMNS_TO_REMOVE = ['zip_code', 'estimated_value', 'last_sold_date','list_price', 'mls_id', 'latitude', 'longitude', 'price_per_sqft', TARGET_COLUMN]
+    COLUMNS_TO_ONE_HOT_ENCODE = ['state', 'style', 'city', 'nearby_schools']
+    COLUMNS_TO_REMOVE = ['year_built','assessed_value', 'zip_code', 'broker', 'broker_phone', 'broker_website', 'estimated_value', 'last_sold_date','list_price', 'mls_id', 'latitude', 'longitude', 'price_per_sqft', TARGET_COLUMN]
     OUTPUT_COLUMNS = ['readable_address','style', 'sqft', 'beds', 'full_baths', 'list_price', 'predicted', 'diff', 'diff_percent', 'property_url']
 
     def __init__(self, location, column_filters={}):
@@ -114,14 +115,28 @@ class RedfinModel:
                 print('filtering column:', column, 'allowed_values:', allowed_values)
                 data = data[data[column].isin(allowed_values)]
 
+        # Calculate age of property
+        if 'year_built' in data.columns.values:
+            current_year = datetime.now().year
+            data['age'] = current_year - data['year_built']
+
         print(f"Filtered data shape: {data.shape} (from {original_shape})")
         return data.convert_dtypes()
 
     def _process_data(self, data, show_debug=False):
+
+
         numeric_cols = data.select_dtypes(include=np.number).columns.values
-        base_cols = [*numeric_cols, 'text']
-        columns_to_use = np.concatenate((base_cols, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE))
+        columns_to_use = np.concatenate((numeric_cols, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE))
         columns_to_use = np.setdiff1d(columns_to_use, RedfinModel.COLUMNS_TO_REMOVE)
+
+        # Transform text data
+        # tfidf = TfidfVectorizer()
+        # text_features = tfidf.fit_transform(data['text'])
+        # text_features_df = pd.DataFrame(text_features.toarray(), columns=tfidf.get_feature_names_out())
+        # print(f"Text features shape: {text_features_df.shape}")
+        # print(text_features_df.head(5))
+        # data = pd.concat([data[columns_to_use], text_features_df], axis=1)
         data = data[columns_to_use]
         data = self.encode_onehot(data, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE)
         # drop original unencoded columns if present
@@ -144,8 +159,8 @@ class RedfinModel:
         return mean_score
 
 
-    def train_from_raw(self, X, y):
-        train = self._process_data(X)
+    def train_from_raw(self, X, y, show_debug=True):
+        train = self._process_data(X, show_debug)
         self.trained_columns = train.columns.values
         self.model.fit(train, y)
         return self.model
