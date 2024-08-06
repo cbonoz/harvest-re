@@ -6,8 +6,23 @@ from homeharvest import scrape_property
 from sklearn.model_selection import cross_val_score
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestRegressor
 
-ACTIVE_MODEL = GradientBoostingRegressor
+# ACTIVE_MODEL = GradientBoostingRegressor
+ACTIVE_MODEL = Pipeline(steps=[
+    ('preprocessor', ColumnTransformer(
+        transformers=[
+            # ('text', TfidfVectorizer(), 'text'),
+            ('num', StandardScaler(), ['beds', 'full_baths', 'sqft']),
+        ])),
+    ('regressor', RandomForestRegressor())
+])
 DATA_FOLDER = 'data'
 DAYS_OF_SOLD_HISTORY = 180
 MIN_PRICE = 500000
@@ -17,12 +32,11 @@ class RedfinModel:
 
     TARGET_COLUMN = 'sold_price'
     COLUMNS_TO_ONE_HOT_ENCODE = ['state', 'style', 'city']
-    COLUMNS_TO_REMOVE = ['zip_code', 'last_sold_date', 'mls_id', 'list_price', 'latitude', 'longitude', 'price_per_sqft', TARGET_COLUMN]
-    OUTPUT_COLUMNS = ['readable_address','style', 'beds', 'full_baths', 'list_price', 'predicted', 'diff', 'diff_percent',  'latitude', 'longitude', 'primary_photo', 'property_url']
+    COLUMNS_TO_REMOVE = ['zip_code', 'estimated_value', 'last_sold_date','list_price', 'mls_id', 'latitude', 'longitude', 'price_per_sqft', TARGET_COLUMN]
+    OUTPUT_COLUMNS = ['readable_address','style', 'sqft', 'beds', 'full_baths', 'list_price', 'predicted', 'diff', 'diff_percent', 'property_url']
 
     def __init__(self, location, column_filters={}):
-        self.model = None
-        self.model_type = ACTIVE_MODEL
+        self.model = ACTIVE_MODEL
         self.data_folder = DATA_FOLDER
         self.location = location
         self.column_filters = column_filters
@@ -100,14 +114,13 @@ class RedfinModel:
                 print('filtering column:', column, 'allowed_values:', allowed_values)
                 data = data[data[column].isin(allowed_values)]
 
-
-
         print(f"Filtered data shape: {data.shape} (from {original_shape})")
         return data.convert_dtypes()
 
-    def process_data(self, data, show_debug=False):
+    def _process_data(self, data, show_debug=False):
         numeric_cols = data.select_dtypes(include=np.number).columns.values
-        columns_to_use = np.concatenate((numeric_cols, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE))
+        base_cols = [*numeric_cols, 'text']
+        columns_to_use = np.concatenate((base_cols, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE))
         columns_to_use = np.setdiff1d(columns_to_use, RedfinModel.COLUMNS_TO_REMOVE)
         data = data[columns_to_use]
         data = self.encode_onehot(data, RedfinModel.COLUMNS_TO_ONE_HOT_ENCODE)
@@ -123,7 +136,7 @@ class RedfinModel:
 
     def show_cross_validation(self, X, y):
         # use cross_val_score
-        train = self.process_data(X)
+        train = self._process_data(X)
         scores = cross_val_score(self.model, train, y, cv=5)
         print("Cross-validation scores: {}".format(scores))
         mean_score = scores.mean()
@@ -132,8 +145,7 @@ class RedfinModel:
 
 
     def train_from_raw(self, X, y):
-        train = self.process_data(X)
-        self.model = self.model_type()
+        train = self._process_data(X)
         self.trained_columns = train.columns.values
         self.model.fit(train, y)
         return self.model
@@ -141,7 +153,7 @@ class RedfinModel:
     def predict(self, X, as_df=True):
         if not self.model:
             raise Exception("Model not trained")
-        test = self.process_data(X)
+        test = self._process_data(X)
         # Drop any columns that are not in the training data
         dropped_columns = np.setdiff1d(test.columns.values, self.trained_columns)
         print(f"Dropping columns: {dropped_columns}")
@@ -170,10 +182,17 @@ class RedfinModel:
     def print_feature_importances(self):
         if not self.model:
             raise Exception("Model not trained")
+
+        # if model is pipeline
+        if isinstance(self.model, Pipeline):
+            model = self.model.named_steps['regressor']
+        else:
+            model = self.model
+
         try:
-            importances = self.model.feature_importances_
+            importances = model.feature_importances_
         except Exception as e:
-            importances = self.model.coef_
+            importances = model.coef_
         # Zip with columns and order by importance
         importances = list(zip(self.trained_columns, importances))
         importances.sort(key=lambda x: x[1], reverse=True)
