@@ -5,6 +5,14 @@ Finds good value properties based off realtor.com data
 
 ### How to run
 
+#### Notebook
+
+Install dependencies in virtual env using standard process.
+
+`redfin_harvest.ipynb`.
+
+Update `TARGET_LOCATION` (or any of the other parameters in `RedfinModel`), run notebook.
+
 #### Client
 
 <pre>
