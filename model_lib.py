@@ -11,7 +11,7 @@ ACTIVE_MODEL = GradientBoostingRegressor
 DATA_FOLDER = 'data'
 DAYS_OF_SOLD_HISTORY = 180
 MIN_PRICE = 500000
-MAX_PRICE = 15000000
+MAX_PRICE = 1_250_000
 
 class RedfinModel:
 
